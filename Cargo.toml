@@ -1,0 +1,41 @@
+[package]
+name = "baza"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Error handling
+anyhow = "1"
+
+# CLI parsing
+clap = { version = "4", features = ["derive"] }
+
+# Async runtime — needed by DB clients
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Database clients
+tokio-postgres = "0.7"
+tiberius = { version = "0.12", default-features = false, features = ["tds73", "rustls"] }
+tokio-util = { version = "0.7", features = ["compat"] }   # bridge for tiberius
+
+# Config file
+serde = { version = "1", features = ["derive"] }
+toml = "1"
+
+# Filesystem-aware config location
+directories = "6"
+
+# Clipboard reading
+arboard = "3"
+
+# URL parsing for web publications
+url = "2"
+
+# UUID generation for ibases.v8i file
+uuid = { version = "1", features = ["v4"] }
+
+# Password prompt for database authentication
+rpassword = "7.5"
+
+# For dump command *.dt file timestamp name generation
+chrono = "0.4"
