@@ -17,8 +17,9 @@ pub async fn execute(args: DumpArgs, cfg: Config) -> Result<()> {
         arch: args.arch,
         platform_version: args.platform_version.clone(),
         ib_creds: ib_credentials(&args)?,
-        verbose: args.verbose,
         out: args.out,
+        verbose: args.verbose,
+        disable_telegram_notifications: args.disable_telegram_notifications,
     };
 
     ibcmd::dump(&cfg, &server, &args.name, opts).context("dumping infobase")?;

@@ -39,3 +39,6 @@ rpassword = "7.5"
 
 # For dump command *.dt file timestamp name generation
 chrono = "0.4"
+
+# For telegram bot integration
+reqwest = { version = "0.12", features = ["json"] }

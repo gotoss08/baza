@@ -6,6 +6,7 @@ pub mod config;
 pub mod db;
 pub mod input;
 pub mod onec;
+pub mod telegram;
 pub mod utils;
 
 /// Project-wide Result alias.

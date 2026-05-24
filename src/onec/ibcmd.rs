@@ -8,6 +8,7 @@ use chrono::Local;
 
 use crate::Result;
 use crate::config::{Config, Credentials, PlatformArch, Server, ServerKind};
+use crate::telegram::{escape_markdown, send_message};
 
 const IBCMD_REL: &str = r"bin\ibcmd.exe";
 const PLATFORM_DIR: &str = "1cv8";
@@ -16,8 +17,9 @@ pub struct DumpOptions {
     pub arch: Option<PlatformArch>,
     pub platform_version: Option<String>,
     pub ib_creds: Credentials,
-    pub verbose: bool,
     pub out: Option<PathBuf>,
+    pub verbose: bool,
+    pub disable_telegram_notifications: bool,
 }
 
 /// Entry point for the `dump` subcommand.
@@ -84,7 +86,45 @@ pub fn dump(cfg: &Config, server: &Server, name: &str, opts: DumpOptions) -> Res
         println!("Executing command: {cmd:?}");
     }
 
+    if !opts.disable_telegram_notifications && cfg.telegram_notifications_enabled {
+        let result = tokio::task::block_in_place(|| {
+            let handle = tokio::runtime::Handle::current();
+            handle.block_on(send_message(
+                cfg,
+                format!("Starting infobase dump for `{}`", escape_markdown(name)).as_str(),
+            ))
+        });
+        match result {
+            Ok(_) => (),
+            Err(e) => eprintln!("Failed to send dump started Telegram notification: {e}"),
+        }
+    }
+
     let status = cmd.status().context("spawning ibcmd.exe")?;
+
+    if !opts.disable_telegram_notifications && cfg.telegram_notifications_enabled {
+        let msg = if status.success() {
+            format!(
+                "Infobase dump for `{}` completed successfully",
+                escape_markdown(name)
+            )
+        } else {
+            format!(
+                "Infobase dump for `{}` failed with exit code *{}*",
+                escape_markdown(name),
+                status.code().unwrap_or(-1)
+            )
+        };
+        let result = tokio::task::block_in_place(|| {
+            let handle = tokio::runtime::Handle::current();
+            handle.block_on(send_message(cfg, &msg))
+        });
+        match result {
+            Ok(_) => (),
+            Err(e) => eprintln!("Failed to send dump finished Telegram notification: {e}"),
+        }
+    }
+
     ensure!(
         status.success(),
         "ibcmd.exe exited with code {}",

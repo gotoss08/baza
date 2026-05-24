@@ -22,6 +22,10 @@ pub struct Config {
     pub default_ib_username: Option<String>,
     pub default_ib_password: Option<String>,
 
+    pub telegram_notifications_enabled: bool,
+    pub telegram_bot_token: Option<String>,
+    pub telegram_chat_id: Option<i64>,
+
     #[serde(default)]
     pub servers: Vec<Server>,
 }

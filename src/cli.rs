@@ -132,6 +132,10 @@ pub struct DumpArgs {
     /// Show verbose output
     #[arg(long)]
     pub verbose: bool,
+
+    /// Disable Telegram notifications for this dump operation, even if they are enabled in the config.
+    #[arg(long)]
+    pub disable_telegram_notifications: bool,
 }
 
 #[derive(Args, Debug)]
