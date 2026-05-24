@@ -25,13 +25,9 @@ pub fn dump(cfg: &Config, server: &Server, name: &str, opts: DumpOptions) -> Res
     let ibcmd_path = resolve_ibcmd_path(cfg, opts.arch, opts.platform_version.as_deref())
         .context("resolving ibcmd.exe path")?;
 
-    if opts.verbose {
-        println!("Using ibcmd.exe at {}", ibcmd_path.display());
-    }
-
     let mut cmd = Command::new(ibcmd_path);
 
-    cmd.arg("infobase");
+    cmd.raw_arg("infobase");
 
     cmd.raw_arg(format!(
         "--dbms={}",
@@ -51,35 +47,39 @@ pub fn dump(cfg: &Config, server: &Server, name: &str, opts: DumpOptions) -> Res
             }
         ));
     } else {
-        cmd.raw_arg(format!("--database-server={}", server.host));
+        cmd.raw_arg(format!("--database-server=\"{}\"", server.host));
     }
 
-    cmd.raw_arg(format!("--database-name={}", name));
-    cmd.raw_arg(format!("--database-user={}", server.user));
-    cmd.raw_arg(format!("--database-password={}", server.password));
+    cmd.raw_arg(format!("--database-name=\"{}\"", name));
+    cmd.raw_arg(format!("--database-user=\"{}\"", server.user));
+    cmd.raw_arg(format!("--database-password=\"{}\"", server.password));
 
-    cmd.arg("dump");
+    cmd.raw_arg("dump");
 
     if opts.ib_creds.username.is_some() {
         cmd.raw_arg(format!(
-            "--user={}",
+            "--user=\"{}\"",
             opts.ib_creds.username.as_ref().unwrap()
         ));
     }
 
     if opts.ib_creds.password.is_some() {
         cmd.raw_arg(format!(
-            "--password={}",
+            "--password=\"{}\"",
             opts.ib_creds.password.as_ref().unwrap()
         ));
     }
 
-    if opts.out.is_some() {
-        cmd.arg(opts.out.unwrap());
+    let out_path = if opts.out.is_some() {
+        opts.out.unwrap().to_string_lossy().to_string()
     } else {
         let now = Local::now();
-        let filename = format!("{}_{}.dt", name, now.format("%d%m%Y"));
-        cmd.arg(filename);
+        format!("./{}_{}.dt", name, now.format("%d%m%Y"))
+    };
+    cmd.arg(out_path);
+
+    if opts.verbose {
+        println!("Executing command: {cmd:?}");
     }
 
     let status = cmd.status().context("spawning ibcmd.exe")?;
