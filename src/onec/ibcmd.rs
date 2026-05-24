@@ -1,11 +1,13 @@
-use crate::Result;
-use crate::config::{Config, Credentials, PlatformArch, Server, ServerKind};
-use anyhow::{Context, bail, ensure};
-use chrono::Local;
 use std::fs;
 use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+
+use anyhow::{Context, bail, ensure};
+use chrono::Local;
+
+use crate::Result;
+use crate::config::{Config, Credentials, PlatformArch, Server, ServerKind};
 
 const IBCMD_REL: &str = r"bin\ibcmd.exe";
 const PLATFORM_DIR: &str = "1cv8";

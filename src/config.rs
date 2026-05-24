@@ -1,7 +1,8 @@
+use std::{fmt::Display, path::PathBuf};
+
 use anyhow::{Context, anyhow};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, path::PathBuf};
 
 use crate::Result;
 

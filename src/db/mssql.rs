@@ -1,8 +1,8 @@
-use super::*;
-
 use tiberius::{AuthMethod, Client, Config};
 use tokio::net::TcpStream;
 use tokio_util::compat::TokioAsyncWriteCompatExt;
+
+use super::*;
 
 const DEFAULT_PORT: u16 = 1433;
 
